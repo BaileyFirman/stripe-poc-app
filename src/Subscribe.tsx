@@ -1,5 +1,4 @@
-import React from "react";
-import logo from "./logo.svg";
+import React, { useState } from "react";
 import "./App.css";
 import { CardElement, useElements, useStripe } from "@stripe/react-stripe-js";
 import { PaymentMethod, Stripe, StripeCardElement } from "@stripe/stripe-js";
@@ -8,20 +7,21 @@ const Subscribe = () => {
   const stripe = useStripe() as Stripe;
   const elements = useElements();
 
-  function onSubscriptionComplete(result: any) {
+  const [customerId, setCustomerId] = useState<string>("");
+  const [priceId, setPriceId] = useState<string>("");
+
+  const onSubscriptionComplete = (result: any) => {
     // Payment was successful.
     if (result.subscription.status === "active") {
-      // Change your UI to show a success message to your customer.
-      // Call your backend to grant access to your service based on
       // `result.subscription.items.data[0].price.product` the customer subscribed to.
     }
-  }
+  };
 
-  function createSubscription(
+  const createSubscription = (
     customerId: string,
     paymentMethodId: string,
     priceId: string
-  ) {
+  ) => {
     return (
       fetch("http://localhost:57679/api/billing/create-subscription", {
         method: "post",
@@ -45,8 +45,6 @@ const Subscribe = () => {
           }
           return result;
         })
-        // Normalize the result to contain the object returned by Stripe.
-        // Add the additional details we need.
         .then((result) => {
           return {
             paymentMethodId: paymentMethodId,
@@ -57,13 +55,9 @@ const Subscribe = () => {
         .then(() => {})
         // No more actions required. Provision your service for the user.
         .then(onSubscriptionComplete)
-        .catch((error) => {
-          // An error has happened. Display the failure to the user here.
-          // We utilize the HTML element we created.
-          // showCardError(error);
-        })
+        .catch((error) => {})
     );
-  }
+  };
 
   const handleSubmit = async (event: any) => {
     // Block native form submission.
@@ -89,21 +83,28 @@ const Subscribe = () => {
       console.log("[PaymentMethod]", paymentMethod);
 
       createSubscription(
-        "cus_JFgBloKlbL5wiy",
+        customerId,
         (paymentMethod as PaymentMethod).id,
-        "price_1IaFBTBZ3RciYKBiXWVUJZU1"
+        priceId
       );
     }
   };
 
   return (
     <>
-      <p>A customer Id cus_JFgBloKlbL5wiy</p>
       <p>Intelli Pro PriceId price_1IaFBTBZ3RciYKBiXWVUJZU1</p>
       <p>Intelli Free PriceId price_1IaF8WBZ3RciYKBiJlhWRfDB</p>
       <h1>Subscripe</h1>
-      <input placeholder="debug-priceId"></input>
-      <input placeholder="debug-subscriptionId"></input>
+      <input
+        placeholder="debug-priceId"
+        value={priceId}
+        onChange={(e) => setPriceId(e.target.value)}
+      ></input>
+      <input
+        placeholder="debug-customerId"
+        value={customerId}
+        onChange={(e) => setCustomerId(e.target.value)}
+      ></input>
       <br />
       <form onSubmit={handleSubmit}>
         <CardElement />
@@ -113,6 +114,6 @@ const Subscribe = () => {
       </form>
     </>
   );
-}
+};
 
 export default Subscribe;

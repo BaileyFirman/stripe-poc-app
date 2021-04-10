@@ -2,13 +2,14 @@ import { useState } from "react";
 
 type CreateUserProps = {};
 
-export const CreateUser: React.FC<CreateUserProps> = ({}) => {
+export const CreateUser: React.FC<CreateUserProps> = () => {
   const [email, setEmail] = useState<string>("");
   const [id, setId] = useState<string>("");
 
   const createUser = async (customerId: string, customerEmail: string) => {
     const createCustomerUrl =
       "http://localhost:57679/api/billing/create-customer";
+
     const response = await fetch(createCustomerUrl, {
       method: "post",
       headers: {
@@ -20,7 +21,7 @@ export const CreateUser: React.FC<CreateUserProps> = ({}) => {
       }),
     });
 
-    console.log(response.json())
+    console.log(response.json());
     console.log(response);
   };
 
