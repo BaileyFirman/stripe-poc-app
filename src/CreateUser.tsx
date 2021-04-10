@@ -21,6 +21,7 @@ export const CreateUser: React.FC<CreateUserProps> = ({}) => {
     });
 
     console.log(response.json())
+    console.log(response);
   };
 
   return (

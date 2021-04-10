@@ -4,7 +4,7 @@ import "./App.css";
 import { CardElement, useElements, useStripe } from "@stripe/react-stripe-js";
 import { PaymentMethod, Stripe, StripeCardElement } from "@stripe/stripe-js";
 
-function App() {
+const Subscribe = () => {
   const stripe = useStripe() as Stripe;
   const elements = useElements();
 
@@ -18,9 +18,9 @@ function App() {
   }
 
   function createSubscription(
-    customerId: any,
-    paymentMethodId: any,
-    priceId: any
+    customerId: string,
+    paymentMethodId: string,
+    priceId: string
   ) {
     return (
       fetch("http://localhost:57679/api/billing/create-subscription", {
@@ -54,10 +54,6 @@ function App() {
             subscription: result,
           };
         })
-        // Some payment methods require a customer to be on session
-        // to complete the payment process. Check the status of the
-        // payment intent to handle these actions.
-        //.then(handlePaymentThatRequiresCustomerAction)
         .then(() => {})
         // No more actions required. Provision your service for the user.
         .then(onSubscriptionComplete)
@@ -67,25 +63,6 @@ function App() {
           // showCardError(error);
         })
     );
-  }
-
-  function createPaymentMethod(
-    cardElement: any,
-    customerId: any,
-    priceId: any
-  ) {
-    return stripe
-      .createPaymentMethod({
-        type: "card",
-        card: cardElement,
-      })
-      .then((result) => {
-        if (result.error) {
-          // displayError(error);
-        } else {
-          createSubscription(customerId, result.paymentMethod.id, priceId);
-        }
-      });
   }
 
   const handleSubmit = async (event: any) => {
@@ -98,12 +75,9 @@ function App() {
       return;
     }
 
-    // Get a reference to a mounted CardElement. Elements knows how
-    // to find your CardElement because there can only ever be one of
-    // each type of element.
+    // There can only ever be one of each type of stripe element.
     const cardElement = elements.getElement(CardElement) as StripeCardElement;
 
-    // Use your card Element with other Stripe.js APIs
     const { error, paymentMethod } = await stripe.createPaymentMethod({
       type: "card",
       card: cardElement,
@@ -115,15 +89,18 @@ function App() {
       console.log("[PaymentMethod]", paymentMethod);
 
       createSubscription(
-        "cus_J6V0ZpcuoityrE",
+        "cus_JFgBloKlbL5wiy",
         (paymentMethod as PaymentMethod).id,
-        "price_1IVBuZBZ3RciYKBicKZ4M5qC"
+        "price_1IaFBTBZ3RciYKBiXWVUJZU1"
       );
     }
   };
 
   return (
     <>
+      <p>A customer Id cus_JFgBloKlbL5wiy</p>
+      <p>Intelli Pro PriceId price_1IaFBTBZ3RciYKBiXWVUJZU1</p>
+      <p>Intelli Free PriceId price_1IaF8WBZ3RciYKBiJlhWRfDB</p>
       <h1>Subscripe</h1>
       <input placeholder="debug-priceId"></input>
       <input placeholder="debug-subscriptionId"></input>
@@ -138,4 +115,4 @@ function App() {
   );
 }
 
-export default App;
+export default Subscribe;
